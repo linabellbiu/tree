@@ -2,22 +2,22 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"time"
 )
 
-type btree struct {
+type Btree struct {
 	key   int
-	right *btree
-	left  *btree
+	right *Btree
+	left  *Btree
 }
 
-type root struct {
-	root *btree
+type Root struct {
+	root  *Btree
+	count int
 }
 
-func NewBtree(a int) *btree {
-	return &btree{key: a, right: nil, left: nil}
+func NewBtree(a int) *Btree {
+	return &Btree{key: a, right: nil, left: nil}
 }
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 		a = append(a, j)
 	}
 
-	root := &root{
+	root := &Root{
 		root: nil,
 	}
 
@@ -39,27 +39,33 @@ func main() {
 		root.createBtee(i)
 	}
 
-	bT := time.Now() // 开始时间
-	find(root.root, 99999)
-	eT := time.Since(bT) // 从开始到当前所消耗的时间
+	param := 9999
+
+	// 开始时间
+	bT := time.Now()
+
+	//二叉树查找
+	fmt.Println("btree查找次数:",root.btreeFind(root.root, param))
+
+	// 从开始到当前所消耗的时间
+	eT := time.Since(bT)
+
 	fmt.Println("Run time: ", eT)
 
-	bT = time.Now() // 开始时间
+	// 开始时间
+	bT = time.Now()
 
-	var o int
-	for _, k := range a {
-		o++
-		if k == 998 {
-			eT = time.Since(bT) // 从开始到当前所消耗的时间
-			fmt.Println("Run time: ", eT)
-			fmt.Println(o)
-			os.Exit(1)
-		}
-	}
+	//for循环查找
+	fmt.Println("for查找次数:",forFind(param, a))
+
+	// 从开始到当前所消耗的时间
+	eT = time.Since(bT)
+
+	fmt.Println("Run time: ", eT)
 }
 
 //创建树
-func (root *root) createBtee(a int) {
+func (root *Root) createBtee(a int) {
 	btree := NewBtree(a)
 	if root.root == nil {
 		root.root = btree
@@ -69,7 +75,7 @@ func (root *root) createBtee(a int) {
 }
 
 //创建叶子
-func createLeaf(oldBtee, newBtree *btree) {
+func createLeaf(oldBtee, newBtree *Btree) {
 	if oldBtee.key < newBtree.key {
 		if oldBtee.right == nil {
 			oldBtee.right = newBtree
@@ -85,19 +91,33 @@ func createLeaf(oldBtee, newBtree *btree) {
 	}
 }
 
-func find(root *btree, param int) int {
-	fmt.Println(root.key)
-	if root.key > param {
-		return find(root.left, param)
-	} else if root.key < param {
-		return find(root.right, param)
-	} else if root.key == param {
-		return root.key
+func (root *Root) btreeFind(btree *Btree, param int) int {
+	root.count++
+	//fmt.Println(root.key)
+	if btree.key > param {
+		return root.btreeFind(btree.left, param)
+	} else if btree.key < param {
+		return root.btreeFind(btree.right, param)
+	} else if btree.key == param {
+
 	}
-	return 0
+	return root.count
 }
 
-func echo(root *btree) {
+func forFind(param int, a []int) int {
+
+	//循环的次数
+	var count int
+	for _, k := range a {
+		count++
+		if k == param {
+			break
+		}
+	}
+	return count
+}
+
+func echo(root *Btree) {
 	if root.left != nil {
 		echo(root.left)
 	}
